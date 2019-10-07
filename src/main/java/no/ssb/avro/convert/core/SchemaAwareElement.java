@@ -118,7 +118,7 @@ public class SchemaAwareElement {
     public String toString(boolean recursive) {
         StringBuilder sb = new StringBuilder();
         if (recursive) {
-            sb.append(String.format("%s%s value:%s schema(%s)\n", getIndentString(), name, value, schemaBuddy));
+            sb.append(String.format("%s%s value:%s schema(%s)%n", getIndentString(), name, value, schemaBuddy));
 
             for (SchemaAwareElement child : getChildren()) {
                 sb.append(child.toString(true));
@@ -160,13 +160,12 @@ public class SchemaAwareElement {
                                     .map(subElement -> subElement.value)
                                     .collect(Collectors.toList()));
                 }
-
             } else {
                 if (child.isSimpleType()) {
                     setSimpleType(rootRecordBuilder, child.schemaBuddy.getType(), child);
                 } else {
-                    GenericRecord value = child.toRecord();
-                    rootRecordBuilder.set(child.name, value);
+                    GenericRecord record = child.toRecord();
+                    rootRecordBuilder.set(child.name, record);
                 }
             }
         }
@@ -200,10 +199,10 @@ public class SchemaAwareElement {
                     }
                     break;
                 default:
-                    throw new RuntimeException(type + " do not currently have a converter");
+                    throw new IllegalStateException(type + " do not currently have a converter");
             }
         } catch (RuntimeException e) {
-            throw new RuntimeException(e.getMessage() + String.format("\ndata:(%s)", element.toString()), e);
+            throw new RuntimeException(e.getMessage() + String.format("%ndata:(%s)", element.toString()), e);
         }
     }
 

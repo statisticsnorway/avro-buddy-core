@@ -7,7 +7,7 @@ class DataElementBuilder {
     }
 
     static class RootBuilder {
-        private DataElement dataElement;
+        private final DataElement dataElement;
 
         RootBuilder(DataElement dataElement) {
             this.dataElement = dataElement;

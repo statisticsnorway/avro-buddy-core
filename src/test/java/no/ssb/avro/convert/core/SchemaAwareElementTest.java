@@ -44,4 +44,234 @@ class SchemaAwareElementTest {
             assertThat(json).isEqualTo(expectedRecords);
         }
     }
+
+    @Test
+    void checkOptionalChild() {
+        Schema schema = SchemaBuilder
+                .record("root").namespace("no.ssb.dataset")
+                .fields()
+                .name("id").type().stringType().noDefault()
+                .name("person").type().optional().type(
+                        SchemaBuilder.record("person")
+                                .fields()
+                                .name("name").type().stringType().noDefault()
+                                .name("sex").type().optional().stringType()
+                                .endRecord()
+                )
+                .endRecord();
+
+        SchemaBuddy schemaBuddy = SchemaBuddy.parse(schema);
+
+        DataElement dataElement = DataElementBuilder.root("root")
+                .addValue("id", "007")
+                .addChild(DataElementBuilder
+                        .root("person")
+                        .addValue("name", "James Bond")
+                        .addValue("sex", "Male").build())
+                .build();
+        GenericRecord record = SchemaAwareElement.toRecord(dataElement, schemaBuddy);
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String json = gson.toJson(new JsonParser().parse(record.toString()));
+
+        String expectedRecords = "{\n" +
+                "  \"id\": \"007\",\n" +
+                "  \"person\": {\n" +
+                "    \"name\": \"James Bond\",\n" +
+                "    \"sex\": \"Male\"\n" +
+                "  }\n" +
+                "}";
+
+        assertThat(json).isEqualTo(expectedRecords);
+    }
+
+    @Test
+    void checkMandatoryChild() {
+        Schema schema = SchemaBuilder
+                .record("root").namespace("no.ssb.dataset")
+                .fields()
+                .name("id").type().stringType().noDefault()
+                .name("person").type(
+                        SchemaBuilder.record("person")
+                                .fields()
+                                .name("name").type().stringType().noDefault()
+                                .name("sex").type().optional().stringType()
+                                .endRecord()
+                ).noDefault()
+                .endRecord();
+
+        SchemaBuddy schemaBuddy = SchemaBuddy.parse(schema);
+
+        DataElement dataElement = DataElementBuilder.root("root")
+                .addValue("id", "007")
+                .addChild(DataElementBuilder
+                        .root("person")
+                        .addValue("name", "James Bond")
+                        .addValue("sex", "Male").build())
+                .build();
+        GenericRecord record = SchemaAwareElement.toRecord(dataElement, schemaBuddy);
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String json = gson.toJson(new JsonParser().parse(record.toString()));
+
+        String expectedRecords = "{\n" +
+                "  \"id\": \"007\",\n" +
+                "  \"person\": {\n" +
+                "    \"name\": \"James Bond\",\n" +
+                "    \"sex\": \"Male\"\n" +
+                "  }\n" +
+                "}";
+
+        assertThat(json).isEqualTo(expectedRecords);
+
+    }
+
+    @Test
+    void checkArrayOptionalOfRecords() {
+        Schema schema = SchemaBuilder
+                .record("root").namespace("no.ssb.dataset")
+                .fields()
+                .name("id").type().stringType().noDefault()
+                .name("person").type().optional().type(
+                        SchemaBuilder.array()
+                                .items(SchemaBuilder.record("person")
+                                        .fields()
+                                        .name("name").type().stringType().noDefault()
+                                        .name("sex").type().optional().stringType()
+                                        .endRecord()
+                                )
+                )
+                .endRecord();
+
+        SchemaBuddy schemaBuddy = SchemaBuddy.parse(schema);
+
+        DataElement dataElement = DataElementBuilder.root("root")
+                .addValue("id", "007")
+                .addChild(DataElementBuilder
+                        .root("person")
+                        .addValue("name", "James Bond")
+                        .addValue("sex", "Male").build())
+                .build();
+        GenericRecord record = SchemaAwareElement.toRecord(dataElement, schemaBuddy);
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String json = gson.toJson(new JsonParser().parse(record.toString()));
+
+        String expectedRecords = "{\n" +
+                "  \"id\": \"007\",\n" +
+                "  \"person\": [\n" +
+                "    {\n" +
+                "      \"name\": \"James Bond\",\n" +
+                "      \"sex\": \"Male\"\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+
+        assertThat(json).isEqualTo(expectedRecords);
+    }
+
+    @Test
+    void checkArrayMandatoryOfRecords() {
+        Schema schema = SchemaBuilder
+                .record("root").namespace("no.ssb.dataset")
+                .fields()
+                .name("id").type().stringType().noDefault()
+                .name("person").type(
+                        SchemaBuilder.array()
+                                .items(SchemaBuilder.record("person")
+                                        .fields()
+                                        .name("name").type().stringType().noDefault()
+                                        .name("sex").type().optional().stringType()
+                                        .endRecord()
+                                )
+                ).noDefault()
+                .endRecord();
+
+        SchemaBuddy schemaBuddy = SchemaBuddy.parse(schema);
+        DataElement dataElement = DataElementBuilder.root("root")
+                .addValue("id", "007")
+                .addChild(DataElementBuilder
+                        .root("person")
+                        .addValue("name", "James Bond")
+                        .addValue("sex", "Male").build())
+                .build();
+        GenericRecord record = SchemaAwareElement.toRecord(dataElement, schemaBuddy);
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String json = gson.toJson(new JsonParser().parse(record.toString()));
+
+        String expectedRecords = "{\n" +
+                "  \"id\": \"007\",\n" +
+                "  \"person\": [\n" +
+                "    {\n" +
+                "      \"name\": \"James Bond\",\n" +
+                "      \"sex\": \"Male\"\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+
+        assertThat(json).isEqualTo(expectedRecords);
+    }
+
+    @Test
+    void checkOptionalArrayOfSimpleTypes() {
+        Schema schema = SchemaBuilder
+                .record("root").namespace("no.ssb.dataset")
+                .fields()
+                .name("id").type().stringType().noDefault()
+                .name("person").type().optional().type(
+                        SchemaBuilder.array()
+                                .items().stringType()
+                )
+                .endRecord();
+
+        SchemaBuddy schemaBuddy = SchemaBuddy.parse(schema);
+        DataElement dataElement = DataElementBuilder.root("root")
+                .addValue("id", "007")
+                .build();
+        GenericRecord record = SchemaAwareElement.toRecord(dataElement, schemaBuddy);
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String json = gson.toJson(new JsonParser().parse(record.toString()));
+
+        String expectedRecords = "{\n" +
+                "  \"id\": \"007\"\n" +
+                "}";
+
+        assertThat(json).isEqualTo(expectedRecords);
+    }
+
+    @Test
+    void checkMandatoryArrayOfSimpleTypes() {
+        Schema schema = SchemaBuilder
+                .record("root").namespace("no.ssb.dataset")
+                .fields()
+                .name("id").type().stringType().noDefault()
+                .name("person").type(
+                        SchemaBuilder.array()
+                                .items().stringType()
+                ).noDefault()
+                .endRecord();
+
+        SchemaBuddy schemaBuddy = SchemaBuddy.parse(schema);
+        DataElement dataElement = DataElementBuilder.root("root")
+                .addValue("id", "007")
+                .addValue("person", "Bill Gates")
+                .addValue("person", "Steve Jobs")
+                .build();
+        GenericRecord record = SchemaAwareElement.toRecord(dataElement, schemaBuddy);
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String json = gson.toJson(new JsonParser().parse(record.toString()));
+
+        String expectedRecords = "{\n" +
+                "  \"id\": \"007\",\n" +
+                "  \"person\": [\n" +
+                "    \"Bill Gates\",\n" +
+                "    \"Steve Jobs\"\n" +
+                "  ]\n" +
+                "}";
+
+        assertThat(json).isEqualTo(expectedRecords);
+    }
 }

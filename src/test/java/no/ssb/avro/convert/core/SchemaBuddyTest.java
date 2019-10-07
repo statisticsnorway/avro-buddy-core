@@ -8,6 +8,10 @@ import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericRecord;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SchemaBuddyTest {
@@ -94,6 +98,10 @@ class SchemaBuddyTest {
                 .endRecord();
 
         SchemaBuddy schemaBuddy = SchemaBuddy.parse(schema);
+
+        List<String> names = schemaBuddy.getSimpleTypeChildren().stream().map(SchemaBuddy::getName).collect(Collectors.toList());
+        assertThat(names).isEqualTo(Collections.singletonList("id"));
+
         String result = schemaBuddy.toString(true);
         String expected =
                 "root: record optional:false nullable:false\n" +
@@ -233,12 +241,12 @@ class SchemaBuddyTest {
                 .endRecord();
 
         StringBuilder sb = new StringBuilder();
-        SchemaBuddy.parse(schema, schemaWrapper -> {
-            if (schemaWrapper.isBranch()) {
-                sb.append("branch  : ").append(schemaWrapper.toLevelString()).append("\n");
+        SchemaBuddy.parse(schema, schemaBuddy -> {
+            if (schemaBuddy.isBranch()) {
+                sb.append("branch  : ").append(schemaBuddy.toLevelString()).append("\n");
             }
-            if (schemaWrapper.isSimpleType()) {
-                sb.append("instance: ").append(schemaWrapper.toLevelString()).append("\n");
+            if (schemaBuddy.isSimpleType()) {
+                sb.append("instance: ").append(schemaBuddy.toLevelString()).append("\n");
             }
         });
 
@@ -260,16 +268,16 @@ class SchemaBuddyTest {
         Schema schema = TestUtils.avroSchemaExtended();
 
         StringBuilder sb = new StringBuilder();
-        SchemaBuddy.parse(schema, schemaWrapper -> {
-            if (schemaWrapper.isBranch()) {
-                sb.append("branch  : ").append(schemaWrapper.toLevelString()).append("\n");
-                sb.append("          ").append(schemaWrapper.getIntendString())
-                        .append(schemaWrapper.getProp("extra")).append("\n");
+        SchemaBuddy.parse(schema, schemaBuddy -> {
+            if (schemaBuddy.isBranch()) {
+                sb.append("branch  : ").append(schemaBuddy.toLevelString()).append("\n");
+                sb.append("          ").append(schemaBuddy.getIntendString())
+                        .append(schemaBuddy.getProp("extra")).append("\n");
             }
-            if (schemaWrapper.isSimpleType()) {
-                sb.append("instance: ").append(schemaWrapper.toLevelString()).append("\n");
-                sb.append("          ").append(schemaWrapper.getIntendString())
-                        .append(schemaWrapper.getProp("extra")).append("\n");
+            if (schemaBuddy.isSimpleType()) {
+                sb.append("instance: ").append(schemaBuddy.toLevelString()).append("\n");
+                sb.append("          ").append(schemaBuddy.getIntendString())
+                        .append(schemaBuddy.getProp("extra")).append("\n");
             }
         });
 
@@ -291,6 +299,17 @@ class SchemaBuddyTest {
                 "           |    |-- array with items string\n";
 
         assertThat(sb.toString()).isEqualTo(expected);
+    }
+
+    @Test
+    void testCallBack() {
+        Schema schema = TestUtils.avroSchemaExtended();
+
+        SchemaBuddy.parse(schema, schemaBuddy -> {
+            if(schemaBuddy.isRoot()) {
+                assertThat(schemaBuddy.getName()).isEqualTo("root");
+            }
+        });
     }
 }
 

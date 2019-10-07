@@ -8,7 +8,7 @@ import java.io.InputStream;
 
 class TestUtils {
 
-    private static ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+    private static final ClassLoader classloader = Thread.currentThread().getContextClassLoader();
 
     private static Schema loadSchema(String fileName) {
         try {

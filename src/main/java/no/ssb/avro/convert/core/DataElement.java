@@ -2,9 +2,7 @@ package no.ssb.avro.convert.core;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.HashMap;
 import java.util.Collections;
 
 /**
@@ -62,9 +60,8 @@ public class DataElement {
     public String toString(boolean recursive) {
         StringBuilder sb = new StringBuilder();
         if (recursive) {
-            sb.append(String.format("%s%s value:%s\n", getIntendString(), name, value));
+            sb.append(String.format("%s%s value:%s%n", getIntendString(), name, value));
 
-            Map<String, List<DataElement>> map = new HashMap<>();
             for (DataElement child : children) {
                 sb.append(child.toString(true));
             }

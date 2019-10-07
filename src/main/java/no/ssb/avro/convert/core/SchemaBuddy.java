@@ -12,20 +12,16 @@ import java.util.stream.Collectors;
  */
 public class SchemaBuddy {
 
-    public interface Callback {
-        void onTraverse(SchemaBuddy schemaBuddy);
-    }
-
     private SchemaBuddy parent;
 
-    final private List<SchemaBuddy> children = new ArrayList<>();
-    final private Schema schema;
-    final private String name;
-    final private Map<String, Object> props;
-    final private boolean optional;
-    final private boolean nullable;
+    private final List<SchemaBuddy> children = new ArrayList<>();
+    private final Schema schema;
+    private final String name;
+    private final Map<String, Object> props;
+    private final boolean optional;
+    private final boolean nullable;
 
-    final private String UUIDString = UUID.randomUUID().toString();
+    private final String uuidString = UUID.randomUUID().toString();
 
     private SchemaBuddy(Schema schema, String name, Map<String, Object> props, boolean optional, boolean nullable) {
         this.schema = schema;
@@ -39,15 +35,20 @@ public class SchemaBuddy {
         this(schema, name, props, optional, false);
     }
 
-    static public SchemaBuddy parse(Schema schema) {
+    public static SchemaBuddy parse(Schema schema) {
         return SchemaParser.parse(schema);
     }
 
-    static public SchemaBuddy parse(Schema schema, Callback callback) {
+    public static void parse(Schema schema, Callback callback) {
         if (callback == null) {
             throw new NullPointerException("callback can't be null");
         }
-        return SchemaParser.parse(schema).withCallback(callback);
+        SchemaBuddy schemaBuddy = SchemaParser.parse(schema);
+        if (schemaBuddy == null) {
+            throw new IllegalStateException("Parsing schema failed for:" + schema.toString(true));
+        }
+
+        schemaBuddy.withCallback(callback);
     }
 
     public SchemaBuddy getParent() {
@@ -75,7 +76,7 @@ public class SchemaBuddy {
 
     public String getId() {
         // Use id from schema if we have it to avoid generating duplicates if same save repeated
-        return (String) props.getOrDefault("id", UUIDString);
+        return (String) props.getOrDefault("id", uuidString);
     }
 
     public Object getProp(String prop) {
@@ -140,7 +141,7 @@ public class SchemaBuddy {
             throw new IllegalStateException("Parent need to be of type ARRAY, was " + getType());
         }
         if (children.size() != 1) {
-            throw new RuntimeException("Can only be one element as child when we have Array type as parent:" + this.toString());
+            throw new IllegalStateException("Can only be one element as child when we have Array type as parent:" + this.toString());
         }
         return children.get(0);
     }
@@ -160,7 +161,7 @@ public class SchemaBuddy {
         StringBuilder sb = new StringBuilder();
 
         if (recursive) {
-            sb.append(String.format("%s%s: %s optional:%s nullable:%s\n", getIntendString(), name, getType().getName(), optional, nullable));
+            sb.append(String.format("%s%s: %s optional:%s nullable:%s%n", getIntendString(), name, getType().getName(), optional, nullable));
             for (SchemaBuddy child : children) {
                 sb.append(child.toString(true));
             }
@@ -193,7 +194,7 @@ public class SchemaBuddy {
         StringBuilder sb = new StringBuilder();
         // Make it print out like schema in zeppelin for easy compare
         String typeName = getType().getName().equals("record") ? "struct" : getType().getName();
-        sb.append(String.format("%s%s: %s (nullable = true)\n", getIntendString(), name, typeName));
+        sb.append(String.format("%s%s: %s (nullable = true)%n", getIntendString(), name, typeName));
         for (SchemaBuddy child : children) {
             sb.append(child.toZeppelinPrintSchemaString());
         }
@@ -221,7 +222,7 @@ public class SchemaBuddy {
         return parentList;
     }
 
-    static private class SchemaParser {
+    private static class SchemaParser {
 
         private SchemaParser() {
         }
@@ -237,6 +238,9 @@ public class SchemaBuddy {
                     processUnion(name, schema, props, schemaBuddy, level);
                     break;
                 case ARRAY:
+                    if (schemaBuddy == null) {
+                        throw new IllegalStateException("Parent SchemaBuddy can't be null when schemaType==ARRAY");
+                    }
                     SchemaBuddy schemaBuddyChild = new SchemaBuddy(schema, name, props, optional);
                     schemaBuddy.addChild(schemaBuddyChild);
                     mapRecursiveSchemas(name, schema.getElementType(), schema.getObjectProps(), schemaBuddyChild, level + 1, optional, nullable);
@@ -282,5 +286,9 @@ public class SchemaBuddy {
             SchemaBuddy schemaBuddyChild = new SchemaBuddy(schema, name, props, optional, nullable);
             schemaBuddy.addChild(schemaBuddyChild);
         }
+    }
+
+    public interface Callback {
+        void onTraverse(SchemaBuddy schemaBuddy);
     }
 }
