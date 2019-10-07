@@ -30,7 +30,7 @@ public class DataElement {
         return name;
     }
 
-    String getValue() {
+    public String getValue() {
         return value;
     }
 
