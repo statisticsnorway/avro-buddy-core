@@ -83,6 +83,14 @@ public class SchemaBuddy {
         return props.get(prop);
     }
 
+    public void setProp(String key, Object value) {
+        props.put(key, value);
+    }
+
+    public void setId(String id) {
+        props.put("id", id);
+    }
+
     public Schema getSchema() {
         return schema;
     }
