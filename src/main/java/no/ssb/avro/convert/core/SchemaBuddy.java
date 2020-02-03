@@ -129,7 +129,7 @@ public class SchemaBuddy {
         return !isArrayType() && getType() != Schema.Type.RECORD;
     }
 
-    public List<SchemaBuddy> getChildren() {
+    public List<SchemaBuddy> findChildren() {
         return children;
     }
 
@@ -155,9 +155,31 @@ public class SchemaBuddy {
     }
 
 
+    public List<SchemaBuddy> findChildren(String childName) {
+        return children.stream().filter(schemaWrapper -> schemaWrapper.name.equals(childName)).collect(Collectors.toList());
+    }
+
     public SchemaBuddy getChild(String childName) {
         Optional<SchemaBuddy> child = children.stream().filter(schemaWrapper -> schemaWrapper.name.equals(childName)).findFirst();
         return child.orElseThrow(() -> new RuntimeException("Could not find:" + childName + " in " + children.toString()));
+    }
+
+    public List<SchemaBuddy> getChildrenRecursive(String childName) {
+        List<SchemaBuddy> schemaBuddies = new ArrayList<>();
+        findChildren(childName, this, schemaBuddies);
+        return schemaBuddies;
+    }
+
+    private void findChildren(String childName, SchemaBuddy startNode, List<SchemaBuddy> recursiveFoundChildren) {
+        recursiveFoundChildren.addAll(startNode.findChildren(childName));
+        for (SchemaBuddy child : startNode.children) {
+            findChildren(childName, child, recursiveFoundChildren);
+        }
+    }
+
+    SchemaBuddy getChildReturnNullIdNotFound(String childName) {
+        Optional<SchemaBuddy> child = children.stream().filter(schemaWrapper -> schemaWrapper.name.equals(childName)).findFirst();
+        return child.orElse(null);
     }
 
     private void addChild(SchemaBuddy schemaBuddy) {
