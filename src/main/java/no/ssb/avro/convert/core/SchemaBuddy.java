@@ -129,7 +129,7 @@ public class SchemaBuddy {
         return !isArrayType() && getType() != Schema.Type.RECORD;
     }
 
-    public List<SchemaBuddy> findChildren() {
+    public List<SchemaBuddy> getChildren() {
         return children;
     }
 

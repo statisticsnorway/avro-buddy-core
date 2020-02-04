@@ -58,7 +58,7 @@ public class SchemaAwareElement {
         if (!isArrayType()) {
             throw new IllegalStateException("Can only get getArrayType when we have type ARRAY. Was:" + schemaBuddy.getType());
         }
-        return schemaBuddy.findChildren().get(0).getType();
+        return schemaBuddy.getChildren().get(0).getType();
     }
 
     private List<SchemaAwareElement> getChildren() {
