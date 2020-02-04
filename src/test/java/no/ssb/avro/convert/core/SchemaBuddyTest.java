@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SchemaBuddyTest {
 
     @Test
-    void test() {
+    void testFindRecursively() {
         Schema schema = SchemaBuilder
                 .record("root").namespace("no.ssb.dataset")
                 .fields()
@@ -38,7 +38,9 @@ class SchemaBuddyTest {
         SchemaBuddy schemaBuddy = SchemaBuddy.parse(schema);
 
         List<SchemaBuddy> countryCodes = schemaBuddy.getChildrenRecursive("countryCode");
-        System.out.println(countryCodes);
+        assertThat(countryCodes).hasSize(2);
+        assertThat(countryCodes.get(0).getParent().getName()).isEqualTo("a");
+        assertThat(countryCodes.get(1).getParent().getName()).isEqualTo("b");
     }
 
     @Test
