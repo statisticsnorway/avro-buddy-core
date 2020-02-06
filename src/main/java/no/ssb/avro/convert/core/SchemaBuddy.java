@@ -103,6 +103,15 @@ public class SchemaBuddy {
         return optional;
     }
 
+    public boolean isOptionalWithCheckOfAllChildren() {
+        for (SchemaBuddy child : children) {
+            if (!child.isOptional()) return false;
+            if (!child.isOptionalWithCheckOfAllChildren()) return false;
+        }
+
+        return optional;
+    }
+
     public boolean isArrayType() {
         return getType() == Schema.Type.ARRAY;
     }
