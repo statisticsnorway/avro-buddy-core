@@ -17,6 +17,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SchemaBuddyTest {
 
     @Test
+    void testFindRecursively() {
+        Schema schema = SchemaBuilder
+                .record("root").namespace("no.ssb.dataset")
+                .fields()
+                .name("a").type(
+                        SchemaBuilder.record("a")
+                                .fields()
+                                .name("countryCode").type().optional().stringType()
+                                .endRecord()
+                ).noDefault()
+                .name("b").type(
+                        SchemaBuilder.record("b")
+                                .fields()
+                                .name("countryCode").type().optional().stringType()
+                                .endRecord()
+                ).noDefault()
+                .endRecord();
+
+        SchemaBuddy schemaBuddy = SchemaBuddy.parse(schema);
+
+        List<SchemaBuddy> countryCodes = schemaBuddy.getChildrenRecursive("countryCode");
+        assertThat(countryCodes).hasSize(2);
+        assertThat(countryCodes.get(0).getParent().getName()).isEqualTo("a");
+        assertThat(countryCodes.get(1).getParent().getName()).isEqualTo("b");
+    }
+
+    @Test
     void checkOptionalAndNullable() {
         Schema schema = SchemaBuilder
                 .record("root")
@@ -306,7 +333,7 @@ class SchemaBuddyTest {
         Schema schema = TestUtils.avroSchemaExtended();
 
         SchemaBuddy.parse(schema, schemaBuddy -> {
-            if(schemaBuddy.isRoot()) {
+            if (schemaBuddy.isRoot()) {
                 assertThat(schemaBuddy.getName()).isEqualTo("root");
             }
         });
