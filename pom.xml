@@ -6,11 +6,18 @@
 
     <groupId>no.ssb.avro.convert.core</groupId>
     <artifactId>avro-buddy-core</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.2-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <scm>
+        <connection>scm:git:git://github.com/statisticsnorway/avro-buddy-core.git</connection>
+        <developerConnection>scm:git:git@github.com:statisticsnorway/avro-buddy-core.git</developerConnection>
+        <url>https://github.com/statisticsnorway/avro-buddy-core</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <profiles>
         <profile>
@@ -163,18 +170,9 @@
                     <artifactId>maven-project-info-reports-plugin</artifactId>
                     <version>3.0.0</version>
                 </plugin>
-                <plugin>
-                    <groupId>com.amashchenko.maven.plugin</groupId>
-                    <artifactId>gitflow-maven-plugin</artifactId>
-                    <version>1.11.0</version>
-                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
-            <plugin>
-                <groupId>com.amashchenko.maven.plugin</groupId>
-                <artifactId>gitflow-maven-plugin</artifactId>
-            </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>

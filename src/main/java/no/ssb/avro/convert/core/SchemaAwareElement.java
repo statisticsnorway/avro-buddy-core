@@ -187,6 +187,11 @@ public class SchemaAwareElement {
                 case BOOLEAN:
                     rootRecordBuilder.set(element.name, Boolean.parseBoolean(element.value));
                     break;
+                case MAP:
+                    // TODO: make tests for this and implement correctly
+                    // Collections.singletonMap("a", "b")
+                    rootRecordBuilder.set(element.name, new HashMap<>());
+                    break;
                 case STRING:
                     if (!element.schemaBuddy.isOptional() && element.value == null) {
                         // We have a case where avro schema requires a value
@@ -211,6 +216,11 @@ public class SchemaAwareElement {
         if (size == 0) return "";
         if (size == 1) return " |-- ";
         return String.join("", Collections.nCopies(size - 1, " |   ")) + " |-- ";
+    }
+
+    @Override
+    public String toString() {
+        return toString(false);
     }
 
     private List<String> getParents() {
