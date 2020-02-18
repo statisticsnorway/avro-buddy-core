@@ -17,13 +17,16 @@ public class DataElement {
     private String value;
     private final List<DataElement> children = new ArrayList<>();
 
+    // valueInterceptor is applied on name and value each time setValue is invoked.
+    private ValueInterceptor valueInterceptor = (field, value) -> value;
+
     public DataElement(String name) {
         this.name = name;
     }
 
     public DataElement(String name, String value) {
         this(name);
-        this.value = value;
+        setValue(value);
     }
 
     public String getName() {
@@ -44,12 +47,20 @@ public class DataElement {
     }
 
     public void setValue(String value) {
-        this.value = value;
+        this.value = this.valueInterceptor != null ? this.valueInterceptor.intercept(this.getName(), value) : value;
     }
 
     public void addChild(DataElement child) {
         child.parent = this;
         children.add(child);
+    }
+
+    /**
+     * Add a {@link ValueInterceptor} to be applied on each invocation of setValue.
+     */
+    public DataElement withValueInterceptor(ValueInterceptor valueInterceptor) {
+        this.valueInterceptor = valueInterceptor;
+        return this;
     }
 
     @Override

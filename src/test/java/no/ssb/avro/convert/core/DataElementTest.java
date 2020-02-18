@@ -22,6 +22,19 @@ class DataElementTest {
             .build();
 
     @Test
+    void testValueInterceptor() {
+        DataElement aFieldWithInterceptor = new DataElement("aFieldWithInterceptor").withValueInterceptor(
+                (fieldName, value) -> "shouldBeBlankedOut".equals(value) ? "#####" : value
+        );
+        aFieldWithInterceptor.setValue("shouldBeBlankedOut");
+        assertThat(aFieldWithInterceptor.getValue()).isEqualTo("#####");
+
+        DataElement aFieldWithoutInterceptor = new DataElement("aFieldWithoutInterceptor");
+        aFieldWithoutInterceptor.setValue("shouldBeLeftAsIs");
+        assertThat(aFieldWithoutInterceptor.getValue()).isEqualTo("shouldBeLeftAsIs");
+    }
+
+    @Test
     void testToString() {
         String expected =
                 "root value:null\n" +
