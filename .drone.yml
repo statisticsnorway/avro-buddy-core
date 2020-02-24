@@ -48,11 +48,8 @@ steps:
     commands:
       - mvn clean deploy -P ssb-bip, -DskipTests=true --batch-mode --global-settings settings.xml
     when:
-      event:
-        exclude: pull_request
-      branch:
-        - master
-        - develop
+      ref:
+        - refs/tags/*
     environment:
       MAVEN_HOME: /drone/src/.m2
       M2_HOME: /drone/src/.m2
