@@ -2,8 +2,10 @@ package no.ssb.avro.convert.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Optional;
 import java.util.Collections;
+import java.util.StringJoiner;
 
 /**
  * DataElement is used when mapping data from any input source
@@ -99,4 +101,13 @@ public class DataElement {
         }
         return parentList;
     }
+
+    public String getPath() {
+        StringJoiner joiner = new StringJoiner("/");
+        for (ListIterator<String> iter = getParents().listIterator(getParents().size()); iter.hasPrevious();) {
+            joiner.add(iter.previous());
+        }
+        return "/" + joiner.add(getName()).toString();
+    }
+
 }

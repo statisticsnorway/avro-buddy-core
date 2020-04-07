@@ -2,7 +2,14 @@ package no.ssb.avro.convert.core;
 
 import org.apache.avro.Schema;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.StringJoiner;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -72,6 +79,14 @@ public class SchemaBuddy {
 
     public String getName() {
         return name;
+    }
+
+    public String getPath() {
+        StringJoiner joiner = new StringJoiner("/");
+        for (ListIterator<String> iter = getParents().listIterator(getParents().size()); iter.hasPrevious();) {
+            joiner.add(iter.previous());
+        }
+        return "/" + joiner.add(getName()).toString();
     }
 
     public String getId() {
