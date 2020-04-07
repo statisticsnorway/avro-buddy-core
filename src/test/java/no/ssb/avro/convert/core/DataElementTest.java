@@ -24,7 +24,7 @@ class DataElementTest {
     @Test
     void testValueInterceptor() {
         DataElement aFieldWithInterceptor = new DataElement("aFieldWithInterceptor").withValueInterceptor(
-                (fieldName, value) -> "shouldBeBlankedOut".equals(value) ? "#####" : value
+                (field, value) -> "shouldBeBlankedOut".equals(value) ? "#####" : value
         );
         aFieldWithInterceptor.setValue("shouldBeBlankedOut");
         assertThat(aFieldWithInterceptor.getValue()).isEqualTo("#####");
@@ -32,6 +32,21 @@ class DataElementTest {
         DataElement aFieldWithoutInterceptor = new DataElement("aFieldWithoutInterceptor");
         aFieldWithoutInterceptor.setValue("shouldBeLeftAsIs");
         assertThat(aFieldWithoutInterceptor.getValue()).isEqualTo("shouldBeLeftAsIs");
+    }
+
+    @Test
+    void testDataElementPath() {
+        DataElement e = dataElement;
+        assertThat(e.getPath()).isEqualTo("/root");
+
+        e = e.findChildByName("address");
+        assertThat(e.getPath()).isEqualTo("/root/address");
+
+        e = e.findChildByName("geolocation");
+        assertThat(e.getPath()).isEqualTo("/root/address/geolocation");
+
+        e = e.findChildByName("x");
+        assertThat(e.getPath()).isEqualTo("/root/address/geolocation/x");
     }
 
     @Test

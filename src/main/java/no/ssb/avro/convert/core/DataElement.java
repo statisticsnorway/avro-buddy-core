@@ -20,7 +20,7 @@ public class DataElement {
     private final List<DataElement> children = new ArrayList<>();
 
     // valueInterceptor is applied on name and value each time setValue is invoked.
-    private ValueInterceptor valueInterceptor = (field, value) -> value;
+    private ValueInterceptor valueInterceptor = (field, varValue) -> varValue;
 
     public DataElement(String name) {
         this.name = name;
@@ -49,7 +49,7 @@ public class DataElement {
     }
 
     public void setValue(String value) {
-        this.value = this.valueInterceptor != null ? this.valueInterceptor.intercept(this.getName(), value) : value;
+        this.value = this.valueInterceptor != null ? this.valueInterceptor.intercept(FieldDescriptor.from(this), value) : value;
     }
 
     public void addChild(DataElement child) {
