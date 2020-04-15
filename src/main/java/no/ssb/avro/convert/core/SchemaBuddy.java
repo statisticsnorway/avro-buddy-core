@@ -127,6 +127,10 @@ public class SchemaBuddy {
         return optional;
     }
 
+    public boolean isNullable() {
+        return nullable;
+    }
+
     public boolean isArrayType() {
         return getType() == Schema.Type.ARRAY;
     }
@@ -212,12 +216,19 @@ public class SchemaBuddy {
     }
 
     public String toString(boolean recursive) {
+        return toString(recursive, null);
+    }
+
+    public String toString(boolean recursive, ToStringFormatter formatter) {
         StringBuilder sb = new StringBuilder();
 
         if (recursive) {
-            sb.append(String.format("%s%s: %s optional:%s nullable:%s%n", getIntendString(), name, getType().getName(), optional, nullable));
+            String itemString = (formatter != null)
+              ? formatter.format(this)
+              : String.format("%s: %s optional:%s nullable:%s", name, getType().getName(), optional, nullable);
+            sb.append(String.format("%s%s%n", getIntendString(), itemString));
             for (SchemaBuddy child : children) {
-                sb.append(child.toString(true));
+                sb.append(child.toString(true, formatter));
             }
         } else {
             sb.append(String.format("%s: %s optional:%s nullable:%s", name, getType().getName(), optional, nullable));
@@ -345,4 +356,9 @@ public class SchemaBuddy {
     public interface Callback {
         void onTraverse(SchemaBuddy schemaBuddy);
     }
+
+    public interface ToStringFormatter {
+        String format(SchemaBuddy schemaBuddy);
+    }
+
 }

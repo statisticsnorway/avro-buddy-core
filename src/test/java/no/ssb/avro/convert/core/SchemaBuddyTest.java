@@ -338,5 +338,31 @@ class SchemaBuddyTest {
             }
         });
     }
+
+    @Test
+    void testToStringEnricher() {
+        Schema schema = TestUtils.avroSchemaExtended();
+        SchemaBuddy schemaBuddy = SchemaBuddy.parse(schema);
+        String output = schemaBuddy.toString(true, item ->
+          String.format("%s: %s optional:%s nullable:%s %s",
+            item.getName(),
+            item.getType().getName(),
+            item.isOptional(),
+            item.isNullable(),
+            item.getName().toUpperCase()
+            ));
+
+        String expected = "" +
+          "root: record optional:false nullable:false ROOT\n" +
+          " |-- id: string optional:false nullable:false ID\n" +
+          " |-- person: array optional:false nullable:false PERSON\n" +
+          " |    |-- person: record optional:false nullable:false PERSON\n" +
+          " |    |    |-- name: string optional:false nullable:false NAME\n" +
+          " |    |    |-- sex: string optional:true nullable:false SEX\n" +
+          " |-- languages: array optional:false nullable:false LANGUAGES\n" +
+          " |    |-- languages: string optional:false nullable:false LANGUAGES\n";
+
+        assertThat(output).isEqualTo(expected);
+    }
 }
 
