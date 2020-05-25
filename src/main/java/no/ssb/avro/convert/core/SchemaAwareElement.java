@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -109,7 +110,9 @@ public class SchemaAwareElement {
             }
         } else {
             for (DataElement child : subElements) {
-                arraySchemaAwareElement.addChild(new SchemaAwareElement(child.getName(), child.getValue(), arraySchemaAwareElement, arrayTypeSchema.getArrayTypeSchema()));
+                SchemaBuddy childSchema = arrayTypeSchema.getArrayTypeSchema();
+                String childValue = child.getValue() == null && !childSchema.isNullable() ? "" : child.getValue();
+                arraySchemaAwareElement.addChild(new SchemaAwareElement(child.getName(), childValue, arraySchemaAwareElement, childSchema));
             }
         }
         schemaAwareElement.addChild(arraySchemaAwareElement);
