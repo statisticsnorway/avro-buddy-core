@@ -177,39 +177,50 @@ public class SchemaAwareElement {
 
     private void setSimpleType(GenericRecordBuilder rootRecordBuilder, Schema.Type type, SchemaAwareElement element) {
         try {
-            switch (type) {
-                case LONG:
-                    rootRecordBuilder.set(element.name, Long.parseLong(element.value));
-                    break;
-                case INT:
-                    rootRecordBuilder.set(element.name, Integer.parseInt(element.value));
-                    break;
-                case DOUBLE:
-                    rootRecordBuilder.set(element.name, Double.parseDouble(element.value));
-                    break;
-                case BOOLEAN:
-                    rootRecordBuilder.set(element.name, Boolean.parseBoolean(element.value));
-                    break;
-                case MAP:
-                    // TODO: make tests for this and implement correctly
-                    // Collections.singletonMap("a", "b")
-                    rootRecordBuilder.set(element.name, new HashMap<>());
-                    break;
-                case STRING:
-                    if (!element.schemaBuddy.isOptional() && element.value == null) {
-                        // We have a case where avro schema requires a value
-                        // But data source don't send data
-                        // For now we are adding a default value for this
-                        // TODO: add an argument which decides if we should add default value or throw exception
-                        rootRecordBuilder.set(element.name, "null");
-                    } else {
-                        rootRecordBuilder.set(element.name, element.value);
-                    }
-                    break;
-                default:
-                    throw new IllegalStateException(type + " do not currently have a converter");
+            if (element.value == null && element.schemaBuddy.isOptional()) {
+                return; // do nothing
             }
-        } catch (RuntimeException e) {
+//            else if (element.value == null && element.schemaBuddy.isNullable()) {
+//                rootRecordBuilder.set(element.name, null);
+//            }
+            else {
+                switch (type) {
+                    case LONG:
+                        rootRecordBuilder.set(element.name, Long.parseLong(Optional.ofNullable(element.value).orElse("0")));
+                        break;
+                    case INT:
+                        rootRecordBuilder.set(element.name, Integer.parseInt(Optional.ofNullable(element.value).orElse("0")));
+                        break;
+                    case DOUBLE:
+                        rootRecordBuilder.set(element.name, Double.parseDouble(Optional.ofNullable(element.value).orElse("0")));
+                        break;
+                    case FLOAT:
+                        rootRecordBuilder.set(element.name, Float.parseFloat(Optional.ofNullable(element.value).orElse("0")));
+                        break;
+                    case BOOLEAN:
+                        rootRecordBuilder.set(element.name, Boolean.parseBoolean(Optional.ofNullable(element.value).orElse("false")));
+                        break;
+                    case MAP:
+                        // TODO: make tests for this and implement correctly
+                        // Collections.singletonMap("a", "b")
+                        rootRecordBuilder.set(element.name, new HashMap<>());
+                        break;
+                    case STRING:
+                        if (!element.schemaBuddy.isOptional() && element.value == null) {
+                            // We have a case where avro schema requires a value
+                            // But data source don't send data
+                            // For now we are adding a default value for this
+                            // TODO: add an argument which decides if we should add default value or throw exception
+                            rootRecordBuilder.set(element.name, "null");
+                        } else {
+                            rootRecordBuilder.set(element.name, element.value);
+                        }
+                        break;
+                    default:
+                        throw new IllegalStateException(type + " do not currently have a converter");
+                }
+            }
+        } catch (Exception e) {
             throw new RuntimeException(e.getMessage() + String.format("%ndata:(%s)", element.toString()), e);
         }
     }
