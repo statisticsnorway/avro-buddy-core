@@ -180,9 +180,6 @@ public class SchemaAwareElement {
             if (element.value == null && element.schemaBuddy.isOptional()) {
                 return; // do nothing
             }
-//            else if (element.value == null && element.schemaBuddy.isNullable()) {
-//                rootRecordBuilder.set(element.name, null);
-//            }
             else {
                 switch (type) {
                     case LONG:
