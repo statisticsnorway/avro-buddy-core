@@ -5,7 +5,7 @@
 
     <groupId>no.ssb.avro.convert.core</groupId>
     <artifactId>avro-buddy-core</artifactId>
-    <version>0.0.7</version>
+    <version>0.0.8-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -15,7 +15,7 @@
         <connection>scm:git:git://github.com/statisticsnorway/avro-buddy-core.git</connection>
         <developerConnection>scm:git:git@github.com:statisticsnorway/avro-buddy-core.git</developerConnection>
         <url>https://github.com/statisticsnorway/avro-buddy-core</url>
-        <tag>avro-buddy-core-0.0.7</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <profiles>
